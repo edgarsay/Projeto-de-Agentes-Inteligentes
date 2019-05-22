@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <style>
+canvas {
+    border:1px solid #d3d3d3;
+    background-color: #f1f1f1;
+}
+</style>
+</head>
+<body onload="startGame()">
+<script>
+
+var redGamePiece, blueGamePiece;
+let jmp = false;
+let score = 0;
+let memo = new Array(480).fill(1);
+let action = new Array();
+
+function startGame() {
+    redGamePiece = new component(75, 75, "red", 480, 270 - 75);
+    blueGamePiece = new component(75, 75, "cyan",0, 270 - 75);
+    myGameArea.start();
+}
+
+var myGameArea = {
+    canvas : document.createElement("canvas"),
+    start : function() {
+        this.canvas.width = 480;
+        this.canvas.height = 270;
+        this.context = this.canvas.getContext("2d");
+        document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+        this.interval = setInterval(updateGameArea, 20);
+    },
+    clear : function() {
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+}
+
+function component(width, height, color, x, y) {
+    this.width = width;
+    this.height = height;
+    this.x = x;
+    this.y = y;    
+    this.update = function(){
+        ctx = myGameArea.context;
+        ctx.fillStyle = color;
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+    }
+}
+function jump()
+{
+    if(blueGamePiece.y >= (270-75))
+    jmp = true;
+}
+
+function collision()
+{
+    let rx = redGamePiece.x;
+    let ry = redGamePiece.y;
+    let rxw = rx + redGamePiece.width;
+    let ryh = ry + redGamePiece.height;
+    let bx = blueGamePiece.x;
+    let by = blueGamePiece.y;
+    let bxw = bx + blueGamePiece.width;
+    let byh = by + blueGamePiece.height;
+
+    if(rx >= bx && rx <= bxw)
+    {
+        if(ry >= by && ry <= byh)
+        {
+            return true; 
+        }else if(ryh >= by && ryh <= by)
+        {
+            return true;
+        }
+    }
+    else if(rxw >= bx && rxw <= bxw)
+    {
+        if(ry >= by && ry <= byh)
+        {
+            return true; 
+        }else if(ryh >= by && ryh <= by)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+function reset()
+{
+    score = 0;
+    action = new Array();
+    redGamePiece.x = 480;
+    blueGamePiece.y = 195;
+}
+
+function updateGameArea(){
+    let speed = Number(document.getElementById("spd").value);
+    speed = Math.max(1, speed);
+    while(speed--)
+    {
+        if(blueGamePiece.y == 195)
+        {
+            let distance = redGamePiece.x - blueGamePiece.width;
+            console.log(distance);
+            if(memo[distance] == 1)
+            {
+                action.push(distance);
+                jump();
+            }
+        }
+        if(collision()){
+            for(i of action)
+                memo[i] = 0;
+            reset();
+        }
+        else if(redGamePiece.x < -75)
+        {
+            score++;
+            redGamePiece.x = 480;
+        }
+        document.getElementById("stts").innerHTML = "Score: "+score;
+        
+        myGameArea.clear();
+        redGamePiece.x -= 1;
+        
+        if(jmp == true)
+        {
+            blueGamePiece.y -= 2 
+            if(blueGamePiece.y <= 3 ) jmp = false;
+        }
+        if(blueGamePiece.y < (270-75)) blueGamePiece.y += 1;
+    }
+    redGamePiece.update();
+    blueGamePiece.update();
+}
+</script>
+<h4>Recommendation of Speed: 100 (in the begin)</h4>
+<h5>Speed: 
+    <input type="number" size="12" id="spd" value="5" max="1000" min="1">
+    <!--
+        <input type="range"  id="spd" min="1" max="1000" value="10">
+    -->
+    
+</h5>
+<p id="stts"></p>
+</body>
+</html>

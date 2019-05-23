@@ -1,5 +1,5 @@
 # Projeto-de-Agentes-Inteligentes
-Dois agentes inteligentes  reativo baseado em modelos.
+Dois agentes inteligentes  reativos baseados em modelos.
 <p style="color: yellow;">
 Trabalho IA <br>
 Equipe: <b>Fabricio, Guilherme, Edgar</b> <br>
